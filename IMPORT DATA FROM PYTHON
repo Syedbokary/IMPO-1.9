@@ -1,0 +1,103 @@
+import pyodbc
+import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy import types as sql_types
+
+conn_str = (
+        "DRIVER={ODBC Driver 17 for SQL Server};"
+        "SERVER=172.41.0.43\\IMPO_SQL_INST;"
+        "DATABASE=IMPO;"
+        "uid=IMPO_App;"
+        "pwd=s847cn27;"
+) 
+conn = pyodbc.connect(conn_str)
+print("Connection Successful")
+
+# Create SQLAlchemy engine
+engine = create_engine("mssql+pyodbc://", creator=lambda: conn)
+
+#Importing the Incident_Headder_Data into the dataframe
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Incident_Headder_Data.xlsx')
+#df.to_sql('Incident_Headder',con=engine, if_exists='append',index=False)
+
+#Importing the Events data into the Dataframe
+#df1=pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Events data.xlsx')
+#df1.to_sql('Incident_Events',con=engine, if_exists='append',index=False)
+
+#Importing purchase order data into the Dataframe
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Purchase_Order_Data.xlsx')
+#df.to_sql('Purchase_Order_Headder',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#Importing Cost lines data into the Dataframe
+
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Cost_Line_Calc.xlsx')
+#df.to_sql('Order_Cost_Lines',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#Importing Users into the dataframe
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Users_data.xlsx')
+#df.to_sql('Users',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#Importing PO_Types into the dataframe
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\PO_Types_Data.xlsx')
+#df.to_sql('PO_Types',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#Importing PO_Category into the dataframe
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\PO_Category_Data.xlsx')
+#df.to_sql('PO_Category',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\PO_Products_Data.xlsx')
+#df.to_sql('PO_Products',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\PF Depot_Details.xlsx')
+#df.to_sql('PF_Depot_Details',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Customer_Specifics.xlsx')
+#df.to_sql('Customer_Specifics',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+#df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\PO_Registar_ALL.xlsx')
+#df.to_sql('PO_INSRET',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+
+df = pd.read_excel(r'C:\Users\Managerpst\Desktop\KerridgeReplacement\Costlinesimport.xlsx')
+# Clean numeric columns
+numeric_columns = ['Order Value', 'Recharge Value']
+for col in numeric_columns:
+    # Remove invalid characters and convert to numeric
+    df[col] = df[col].replace({',': '', ' ': ''}, regex=True)
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+
+# Replace NaN with default values
+df.fillna({
+    'Order Value': 0,
+    'Recharge Value': 0,
+}, inplace=True)
+
+# Insert data in smaller batches
+batch_size = 100
+try:
+    for i in range(0, len(df), batch_size):
+        batch = df.iloc[i:i+batch_size]
+        batch.to_sql('PO_INSRET_Costlines', con=engine, if_exists='append', index=False)
+    print("Import Successful")
+except Exception as e:
+    print("Error during import:", e)
+#df.to_sql('PO_INSRET_Costlines',con=engine, if_exists='append',index=False)
+#print("Import Successful")
+
+
+
+
+
+          
+        
+
+
